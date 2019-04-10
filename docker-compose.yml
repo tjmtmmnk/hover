@@ -1,0 +1,25 @@
+version: '2.1'
+services:
+  hov:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    command: npm run dev
+    environment:
+      NODE_ENV: development
+    ports:
+      - '8000:3000'
+    volumes:
+      - .:/app:cached
+    depends_on:
+      - hov-mysql
+  hov-mysql:
+    container_name: hov-mysql
+    image: mysql:5.6
+    ports:
+      - "13306:3306"
+    environment:
+      MYSQL_USER: root
+      MYSQL_ALLOW_EMPTY_PASSWORD: 1
+    volumes:
+      - "./tmp/mysql:/var/lib/mysql:cached"
