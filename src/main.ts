@@ -10,8 +10,6 @@ const repository = repository_bookmark;
 const service = service_bookmark;
 
 app.get('/', (req, res) => {
-    const add_bookmark: BookmarkInterface = {url: 'add', title: 'title'};
-    repository.add(add_bookmark).then(book => console.log(book));
     res.send('Hello world!');
 });
 
