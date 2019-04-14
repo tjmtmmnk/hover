@@ -9,15 +9,26 @@ export class Bookmark {
         const parse = require("hatebu-mydata-parser").parse;
         const searchData = readFileSync("/app/search.data", "utf-8");
         this.now_bookmark_list = parse(searchData);
-        this.now_bookmark_list.forEach((bookmark) => this.add(bookmark));
-        this.new_bookmark_list.forEach(t => console.log(t));
+        this.addNotExistBookmark(this.now_bookmark_list);
+    }
+
+    public addNotExistBookmark(bookmarks) {
+        let promises = [];
+        bookmarks.forEach((bookmark) => {
+            promises.push(this.add(bookmark));
+        });
+        Promise.all(promises).then(() => {
+            this.createBookmarkList(this.new_bookmark_list);
+        });
     }
 
     public add(bookmark) {
-        repository_bookmark.findByUrl(bookmark.url).then((result) => {
-            if (!Object.keys(result).length){
-                repository_bookmark.add(bookmark).then(new_bookmark => console.log(new_bookmark));
-            }
+        return new Promise(resolve => {
+            repository_bookmark.findByUrl(bookmark.url).then((result) => {
+                if (!Object.keys(result).length) {
+                    resolve(repository_bookmark.add(bookmark).then(new_bookmark => this.new_bookmark_list.push(new_bookmark)));
+                }
+            });
         });
     }
 
@@ -30,8 +41,8 @@ export class Bookmark {
 
             writeFileSync('bookmark.html', template);
 
-            bookmarks.forEach((bookmark) => {
-                const def = "<DT><A HREF=\"" + bookmark["url"] + "\">" + bookmark["title"] + "</A>\n"
+            bookmarks.forEach((bookmark) =>{
+                const def = "<DT><A HREF=\"" + bookmark[0]["url"] + "\">" + bookmark[0]["title"] + "</A>\n"
                 appendFileSync('bookmark.html', def);
             });
 
