@@ -13,20 +13,24 @@ export class Bookmark {
     }
 
     public addNotExistBookmark(bookmarks) {
-        let promises = [];
-        bookmarks.forEach((bookmark) => {
-            promises.push(this.add(bookmark));
-        });
-        Promise.all(promises).then(() => {
-            this.createBookmarkList(this.new_bookmark_list);
-        });
+        Promise.all(bookmarks.map(bookmark => {
+            return this.add(bookmark);
+        }))
+            .then(() => {
+                this.createBookmarkList(this.new_bookmark_list);
+            })
+            .catch((err) => console.log(err));
     }
 
     public add(bookmark) {
-        return new Promise(resolve => {
+        return new Promise((resolve, reject) => {
             repository_bookmark.findByUrl(bookmark.url).then((result) => {
                 if (!Object.keys(result).length) {
-                    resolve(repository_bookmark.add(bookmark).then(new_bookmark => this.new_bookmark_list.push(new_bookmark)));
+                    repository_bookmark.add(bookmark).then(new_bookmark => {
+                        resolve(this.new_bookmark_list.push(new_bookmark));
+                    });
+                } else {
+                    resolve("alredy exist");
                 }
             });
         });
@@ -41,7 +45,7 @@ export class Bookmark {
 
             writeFileSync('bookmark.html', template);
 
-            bookmarks.forEach((bookmark) =>{
+            bookmarks.forEach((bookmark) => {
                 const def = "<DT><A HREF=\"" + bookmark[0]["url"] + "\">" + bookmark[0]["title"] + "</A>\n"
                 appendFileSync('bookmark.html', def);
             });
