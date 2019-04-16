@@ -38,19 +38,27 @@ export class Bookmark {
 
     public createBookmarkList(bookmarks) {
         if (Object.keys(bookmarks).length) {
-            const template =
+            const head_template =
                 "<!DOCTYPE NETSCAPE-Bookmark-file-1>\n" +
                 "<META HTTP-EQUIV=\"Content-Type\" CONTENT=\"text/html; charset=UTF-8\">\n" +
-                "<DL><p>";
+                "<DL><p>\n" +
+                "<DL><p>\n" +
+                "<DL><p>\n";
 
-            writeFileSync('bookmark.html', template);
+            writeFileSync('bookmark.html', head_template);
 
             bookmarks.forEach((bookmark) => {
                 const def = "<DT><A HREF=\"" + bookmark[0]["url"] + "\">" + bookmark[0]["title"] + "</A>\n"
                 appendFileSync('bookmark.html', def);
             });
 
-            appendFileSync('bookmark.html', "</DL><p>");
+            const foot_template =
+                "</DL><p>\n" +
+                "</DL><p>\n" +
+                "</DL><p>\n";
+
+
+            appendFileSync('bookmark.html', foot_template);
         }
     }
 }
