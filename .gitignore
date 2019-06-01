@@ -3,5 +3,5 @@ node_modules
 tmp
 index.js.map
 main.js.map
-config.ts
 dist/lib
+.env

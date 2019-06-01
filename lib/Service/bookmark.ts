@@ -1,18 +1,24 @@
 import {appendFileSync, writeFileSync, readFileSync} from "fs";
 import {repository_bookmark} from "../Repository/bookmark";
 
+require('dotenv').config();
+
 export class Bookmark {
     private now_bookmark_list;
     private new_bookmark_list = [];
 
     constructor() {
-        const parse = require("hatebu-mydata-parser").parse;
-        const searchData = readFileSync("/app/search.data", "utf-8");
-        this.now_bookmark_list = parse(searchData);
-        this.addNotExistBookmark(this.now_bookmark_list);
+        this.fetchBookmark()
+            .then(() => {
+                const parse = require("hatebu-mydata-parser").parse;
+                const searchData = readFileSync("/app/search.data", "utf-8");
+                this.now_bookmark_list = parse(searchData);
+                this.addNotExistBookmark(this.now_bookmark_list);
+            })
+            .catch(e => console.log(e));
     }
 
-    public addNotExistBookmark(bookmarks) {
+    private addNotExistBookmark(bookmarks) {
         Promise.all(bookmarks.map(bookmark => {
             return this.add(bookmark);
         }))
@@ -22,7 +28,32 @@ export class Bookmark {
             .catch((err) => console.log(err));
     }
 
-    public add(bookmark) {
+    private fetchBookmark() {
+        return new Promise((resolve, reject) => {
+            const OAuth = require('oauth');
+            const oauth = new OAuth.OAuth(
+                '',
+                '',
+                process.env.CONSUMER_KEY,
+                process.env.CONSUMER_KEY_SECRET,
+                '1.0',
+                null,
+                'HMAC-SHA1'
+            );
+
+            oauth.get(
+                process.env.HATEBU_URL,
+                process.env.ACCESS_TOKEN,
+                process.env.ACCESS_TOKEN_SECRET,
+                function (e, data, res) {
+                    if (e) reject(e);
+                    writeFileSync('search.data', data);
+                    resolve("fetched");
+                });
+        });
+    }
+
+    private add(bookmark) {
         return new Promise((resolve, reject) => {
             repository_bookmark.findByUrl(bookmark.url).then((result) => {
                 if (!Object.keys(result).length) {
@@ -56,7 +87,6 @@ export class Bookmark {
                 "</DL><p>\n" +
                 "</DL><p>\n" +
                 "</DL><p>\n";
-
 
             appendFileSync('bookmark.html', foot_template);
         }
