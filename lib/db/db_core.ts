@@ -1,5 +1,21 @@
 import {createConnection} from "mysql";
-import {db as db_config} from "../../lib/config"
+require('dotenv').config();
+
+const db_config = {
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
+    socketPath: process.env.DB_SOCKET_PATH,
+    charset: process.env.DB_CHARSET
+};
+
+
+export interface BookmarkInterface {
+    url: string,
+    title: string
+};
 
 class DbCore {
     public connection;

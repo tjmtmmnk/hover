@@ -1,5 +1,4 @@
-import {db} from "../db/db_core";
-import {BookmarkInterface} from "../config";
+import {db, BookmarkInterface} from "../db/db_core";
 
 export class Bookmark {
     public getBookmarks() {
